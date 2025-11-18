@@ -54,7 +54,7 @@ tar xf website.tar.gz
 ```
 
 
-3. Setup caddy to host via https with username and password
+3. Setup caddy to host via https without username and password
 
 As root
 ```
