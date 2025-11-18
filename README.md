@@ -91,7 +91,232 @@ EOF
 /opt/caddy/caddy run
 ```
 
-4. Run it all at boot via tmux
+4. Setup the proxy
+As non root user
+```
+mkdir -p /home/ubuntu/proxy
+cd /home/ubuntu/proxy
+wget https://raw.githubusercontent.com/kernelcoinproject/kernelcoin-pool/refs/heads/main/proxy.py
+sudo apt install -y python3-aiohttp
+```
+
+5. Setup MiningCore and postgresql
+Install deps
+```
+apt install -y git cmake build-essential libssl-dev pkg-config libboost-all-dev libsodium-dev libzmq5 nano tzdata postgresql
+```
+Install dotnet sdk 6
+
+```
+wget https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.428/dotnet-sdk-6.0.428-linux-x64.tar.gz
+sudo mkdir /usr/share/dotnet
+sudo tar xzf dotnet-sdk-6.0.428-linux-x64.tar.gz -C /usr/share/dotnet
+sudo ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+
+echo "export DOTNET_ROOT=/usr/share/dotnet" >> ~/.bashrc
+echo "export DOTNET_BUNDLE_EXTRACT_BASE_DIR=/tmp/dotnet" >> ~/.bashrc
+source ~/.bashrc
+dotnet --info
+```
+
+Build miningcore
+```
+git clone https://github.com/oliverw/miningcore.git
+cd miningcore/src/Miningcore
+BUILDIR=${1:-../../build}
+echo "Building into $BUILDIR"
+dotnet publish -c Release --framework net6.0 -o $BUILDIR
+```
+
+Configure postgresql
+```
+sudo chmod 777 /home/ubuntu/miningcore/src/Miningcore/Persistence/Postgres/Scripts/createdb.sql
+su postgres
+psql
+CREATE ROLE miningcore WITH LOGIN ENCRYPTED PASSWORD 'your-secure-password';
+CREATE DATABASE miningcore OWNER miningcore;
+\q
+psql -d miningcore -f /home/ubuntu/miningcore/src/Miningcore/Persistence/Postgres/Scripts/createdb.sql
+exit
+```
+
+Create kernelcoin.json update wallet address
+```
+cat > /home/ubuntu/miningcore/kernelcoin.json << EOF
+{
+  "api": {
+      "enabled": true,
+      "listenAddress": "127.0.0.1",
+      "port": 4000,
+      "rateLimit": {
+        "disabled": true
+      }
+  },
+
+  "logging": {
+    "level": "info",
+    "enableConsoleLog": true,
+    "enableConsoleColors": true,
+    "logDirectory": "logs"
+  },
+
+  "banning": {
+    "enabled": false
+  },
+
+  "notifications": {
+    "enabled": false
+  },
+
+  "persistence": {
+    "postgres": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "user": "miningcore",
+      "password": "your-secure-password",
+      "database": "miningcore"
+    }
+  },
+
+  "paymentProcessing": {
+    "enabled": true,
+    "interval": 600,
+    "shareRecoveryFile": "recovered-shares.txt"
+  },
+
+  "pools": [
+    {
+      "id": "kernelcoin",
+      "enabled": true,
+
+      "coin": "kernelcoin",
+
+      "address": "KGQQeiBxQX1LffakKcypjyqtrRQETGKjju",
+
+      "addressPrefixes": {
+        "pubkey": [45],
+        "script": [23, 25],
+        "bech": "kcn"
+      },
+
+      "jobRebroadcastTimeout": 10,
+      "blockRefreshInterval": 1000,
+      "clientConnectionTimeout": 600,
+
+      "blockTemplateRpcExtraParameters": {
+        "rules": ["segwit", "mweb"]
+      },
+
+      "ports": {
+        "3333": {
+          "listenAddress": "0.0.0.0",
+          "difficulty": 0.1,
+          "name": "CPU/GPU Mining",
+          "varDiff": {
+            "minDiff": 0.1,
+            "maxDiff": 50,
+            "targetTime": 15,
+            "retargetTime": 60,
+            "variancePercent": 30
+          }
+        }
+      },
+
+      "daemons": [
+        {
+          "host": "127.0.0.1",
+          "port": 9333,
+          "user": "mike",
+          "password": "x"
+        }
+      ],
+
+      "coreWallet": {
+        "host": "127.0.0.1",
+        "port": 9333,
+        "user": "mike",
+        "password": "x"
+      },
+
+      "paymentProcessing": {
+        "enabled": true,
+        "minimumPayment": 1,
+        "payoutScheme": "PPLNS",
+        "payoutSchemeConfig": {
+          "factor": 2.0
+        }
+      }
+    }
+  ]
+}
+EOF
+```
+Modify miningcore to know about kernelcoin
+
+```
+sed -i '1r /dev/stdin' /home/ubuntu/minigcore/build/coins.json <<'EOF'
+"kernelcoin": {
+    "name": "Kernelcoin",
+    "canonicalName": "Kernelcoin",
+    "symbol": "KCN",
+    "family": "bitcoin",
+    "website": "",
+    "market": "",
+    "twitter": "",
+    "telegram": "",
+    "discord": "",
+
+    "coinbaseHasher": {
+        "hash": "sha256d"
+    },
+
+    "headerHasher": {
+        "hash": "scrypt",
+        "args": [
+            1024,
+            1
+        ]
+    },
+
+    "blockHasher": {
+        "hash": "reverse",
+        "args": [
+            {
+                "hash": "sha256d"
+            }
+        ]
+    },
+
+    "posBlockHasher": {
+        "hash": "reverse",
+        "args": [
+            {
+                "hash": "scrypt",
+                "args": [
+                    1024,
+                    1
+                ]
+            }
+        ]
+    },
+
+    "shareMultiplier": 65536,
+
+    "addressPrefixes": {
+        "pubkey": [45],
+        "script": [23, 25],
+        "bech": "kcn"
+    }
+},
+EOF
+```
+Give Miningcore a test (proxy and kernelcoind is off)
+```
+cd /home/ubuntu/miningcore
+./build/Miningcore -c kernelcoin.json
+```
+
+6. Run it all at boot via tmux
 
 Run as root user (port 443 requires root)
 ```
@@ -113,21 +338,26 @@ crontab -e
 Run as non-root user
 ```
 
-cat > /home/ec2-user/startup.sh << EOF
-tmux kill-session -t charity 2>/dev/null
-tmux new -s charity -d
-tmux neww -t charity -n kernelcoin
-tmux neww -t charity -n server
-tmux send-keys -t charity:kernelcoin "cd /home/ec2-user/kernelcoin && ./kernelcoind" C-m
-tmux send-keys -t charity:server "cd /home/ec2-user/kernelcoin-charity && ./start.sh" C-m
+cat > /home/ubuntu/start.sh << EOF
+tmux kill-session -t p 2>/dev/null
+tmux new -s p -d
+tmux neww -t p -n kernelcoin
+tmux neww -t p -n server
+tmux neww -t p -n proxy
+tmux neww -t p -n web
+tmux send-keys -t p:kernelcoin "cd /home/ubuntu/kernelcoin && ./kernelcoind" C-m
+tmux send-keys -t p:server "bash" C-m
+tmux send-keys -t p:server "cd /home/ubuntu/miningcore && ./build/Miningcore -c kernelcoin.json" C-m
+tmux send-keys -t p:proxy "cd /home/ubuntu/proxy && python3 proxy.py" C-m
+tmux send-keys -t p:web "cd /home/ubuntu/website && ./website" C-m
 EOF
-chmod +x /home/ec2-user/startup.sh
+chmod +x /home/ubuntu/start.sh
 ```
 
 Run as non-root user
 ```
 crontab -e
-@reboot /home/ec2-user/startup.sh
+@reboot /home/ubuntu/start.sh
 ```
 
 
