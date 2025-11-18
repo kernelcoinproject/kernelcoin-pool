@@ -2,6 +2,7 @@
 MiningCore Pool hosted at https://pool.kernelcoin.org
 
 ## Screenshots
+<img width="1214" height="689" alt="Screenshot 2025-11-18 at 3 18 56 PM" src="https://github.com/user-attachments/assets/6cbd67c1-d6ab-439e-b674-811e111670ae" />
 
 ## Basic Setup
 
