@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernelcoin Mining Pool</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2ad6ff;
+            --primary-dark: #1a9fbf;
+            --secondary: #7fffd4;
+            --accent: #00ffff;
+            --bg-dark: #0a0a0a;
+            --bg-card: rgba(20, 20, 20, 0.9);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #2ad6ff33;
+            --success: #00d966;
+            --warning: #ffb700;
+            --error: #ff4444;
+            --glow: 0 0 20px #2ad6ff55;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: radial-gradient(circle at top, #0a0a0a 40%, #000 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+            border-bottom: 2px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--glow);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+            min-width: 0;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .logo span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        nav button:hover,
+        nav button.active {
+            color: var(--primary);
+            background: var(--border-color);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(42, 214, 255, 0.1) 0%, rgba(127, 255, 212, 0.05) 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--glow);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(42, 214, 255, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Connection Box */
+        .connection-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--glow);
+            text-align: center;
+        }
+
+        .connection-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stratum-address {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            color: var(--secondary);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 5px;
+            word-break: break-all;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .copy-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 0 15px var(--primary);
+            min-height: 48px;
+            min-width: 48px;
+        }
+
+        .copy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--primary);
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow);
+        }
+
+        .feature-card:hover {
+            background: rgba(42, 214, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Instructions Section */
+        .instructions {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-left: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--glow);
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .instructions ol {
+            margin-left: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            font-family: 'Courier New', monospace;
+            color: var(--secondary);
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%);
+            border-top: 2px solid var(--border-color);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-secondary);
+            box-shadow: var(--glow);
+        }
+
+        .highlight {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--glow);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(127, 255, 212, 0.5);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, rgba(20, 20, 20, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
+                flex-direction: column;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                border-bottom: 2px solid var(--border-color);
+            }
+
+            nav.active {
+                max-height: 500px;
+            }
+
+            nav button {
+                padding: 1rem;
+                border-radius: 0;
+                border-bottom: 1px solid var(--border-color);
+                text-align: left;
+                font-size: 1rem;
+            }
+
+            .header-container {
+                flex-wrap: wrap;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .stratum-address {
+                font-size: 1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .instructions {
+                padding: 1.5rem;
+            }
+
+            .instructions h3 {
+                font-size: 1.3rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 1rem 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .logo i {
+                font-size: 1.5rem;
+            }
+
+            .logo span {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+
+            .hero p {
+                font-size: 0.9rem;
+            }
+
+            .stratum-address {
+                font-size: 0.85rem;
+            }
+
+            .copy-button {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+
+            .container {
+                padding: 1rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">
+                <i class="fas fa-pickaxe"></i>
+                <span>Kernelcoin Mining Pool</span>
+            </a>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="navMenu">
+                <button class="nav-button active" data-section="mining">
+                    <i class="fas fa-server"></i> Pool
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1><i class="fas fa-pickaxe"></i> Kernelcoin Mining Pool</h1>
+            <p>Professional mining infrastructure for Kernelcoin - Maximize your earnings with reliable, high-performance mining. <br>
+            For real though. This box is not resourced for lots of users. Breathe the wrong way and it might come down. Be nice. <br>If you want to do something crazy please deploy your own.</p>
+        </div>
+
+        <!-- Mining Connection Section -->
+        <div class="connection-box">
+            <div class="connection-label">Stratum Connection Details</div>
+            <div class="stratum-address">stratum+tcp://pool.kernelcoin.org:3333</div>
+            <button class="copy-button" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i> Copy Address
+            </button>
+        </div>
+
+
+        <!-- Features Section -->
+        <div class="features">
+            <div class="feature-card">
+                <h3><i class="fas fa-rocket"></i> Basic Performance</h3>
+                <p>Experience lightning-fast mining with our optimized pool infrastructure. Minimal latency and maximum uptime ensure you never miss a block. That works some of the time.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-coins"></i> Zero Commission</h3>
+                <p>0% commission on all mining rewards. Keep 100% of what you earn with our zero-fee mining pool.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-shield-alt"></i> Partially Secure & Reliable</h3>
+                <p>Junior engineer grade security with non-redundant systems. Your mining operations are NOT protected 24/7 with no automatic failover.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-chart-line"></i> Real-time Stats</h3>
+                <p>It sure would be cool to monitor your mining performance with detailed analytics and real-time dashboards. Track hashrate, shares, and earnings instantly. That's not a feature I'm exposing today.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-globe"></i> Global Network</h3>
+                <p>Connect from anywhere in the world. Our distributed infrastructure ensures optimal performance regardless of your location.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><i class="fas fa-headset"></i> 24/7 Support</h3>
+                <p>Dedicated support team ready to help. Get assistance with setup, troubleshooting, and optimization anytime you need it. Is what I would say if we had volunteers.</p>
+            </div>
+        </div>
+
+        <!-- Getting Started Section -->
+        <div class="instructions">
+            <h3><i class="fas fa-play-circle"></i> Getting Started</h3>
+            <ol>
+                <li><span class="highlight">Download a Mining Client</span> - Choose a Kernelcoin-compatible miner (CGMiner, BFGMiner, or similar)</li>
+                <li><span class="highlight">Configure Your Miner</span> - Set the pool address to:
+                    <div class="code-block">stratum+tcp://pool.kernelcoin.org:3333</div>
+                </li>
+                <li><span class="highlight">Enter Your Wallet Address</span> - Use your Kernelcoin wallet address as the username</li>
+                <li><span class="highlight">Start Mining</span> - Launch your miner and begin earning Kernelcoin</li>
+                <li><span class="highlight">Monitor Your Progress</span> - Check your stats and earnings in your wallet and cli</li>
+            </ol>
+        </div>
+
+        <!-- Example Configuration Section -->
+        <div class="instructions">
+            <h3><i class="fas fa-cogs"></i> Example Configuration</h3>
+            <p style="margin-bottom: 1rem;">Here's an example command to start mining with CGMiner:</p>
+            <div class="code-block">
+                cgminer -o stratum+tcp://pool.kernelcoin.org:3333 -u YOUR_WALLET_ADDRESS -p x
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-secondary);">
+                Replace <span class="highlight">YOUR_WALLET_ADDRESS</span> with your actual Kernelcoin wallet address. The password field can be any value (typically 'x').
+            </p>
+        </div>
+
+        <!-- Pool Information Section -->
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Pool Information</h3>
+            <p style="margin-bottom: 1rem;">
+                <strong>Pool Address:</strong> <span class="highlight">stratum+tcp://pool.kernelcoin.org:3333</span><br>
+                <strong>Minimum Payout:</strong> <span class="highlight">1 KCN</span><br>
+                <strong>Commission:</strong> <span class="highlight">0%</span><br>
+                <strong>Payment Frequency:</strong> <span class="highlight">Every 10 minutes</span><br>
+                <strong>Difficulty Multiplier:</strong> <span class="highlight">Automatic</span>
+            </p>
+            <p style="color: var(--text-secondary);">
+                Our pool uses variable difficulty to optimize your mining experience. The difficulty automatically adjusts based on your hashrate to ensure consistent share submissions.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Kernelcoin Mining Pool. All rights reserved.</p>
+            <p>Pool Address: <span class="highlight">stratum+tcp://pool.kernelcoin.org:3333</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('active');
+        });
+
+
+        function copyToClipboard() {
+            const address = 'stratum+tcp://pool.kernelcoin.org:3333';
+            const button = event.target.closest('.copy-button');
+            const originalText = button.innerHTML;
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(address).then(() => {
+                    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    button.style.background = 'linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%)';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback to older method
+                    copyToClipboardFallback(address, button, originalText);
+                });
+            } else {
+                // Fallback for older browsers
+                copyToClipboardFallback(address, button, originalText);
+            }
+        }
+        
+        function copyToClipboardFallback(text, button, originalText) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.style.background = 'linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%)';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy. Please copy manually: ' + text);
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+    </script>
+</body>
+</html>
