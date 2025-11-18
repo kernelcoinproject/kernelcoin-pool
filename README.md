@@ -344,7 +344,7 @@ tmux new -s p -d
 tmux neww -t p -n kernelcoin
 tmux neww -t p -n server
 tmux neww -t p -n proxy
-tmux neww -t p -n web
+tmux neww -t p: -n web
 tmux send-keys -t p:kernelcoin "cd /home/ubuntu/kernelcoin && ./kernelcoind" C-m
 tmux send-keys -t p:server "bash" C-m
 tmux send-keys -t p:server "cd /home/ubuntu/miningcore && ./build/Miningcore -c kernelcoin.json" C-m
