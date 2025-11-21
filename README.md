@@ -32,6 +32,7 @@ rpcpassword=x
 rpcport=9332
 rpcallowip=127.0.0.1
 rpcbind=127.0.0.1
+maxtxfee=999999
 EOF
 ```
 
@@ -193,6 +194,7 @@ cat > /home/ubuntu/miningcore/kernelcoin.json << EOF
       "coin": "kernelcoin",
 
       "address": "KGQQeiBxQX1LffakKcypjyqtrRQETGKjju",
+      "rewardRecipients": []
 
       "addressPrefixes": {
         "pubkey": [45],
@@ -241,6 +243,7 @@ cat > /home/ubuntu/miningcore/kernelcoin.json << EOF
 
       "paymentProcessing": {
         "enabled": true,
+        "minimumConfirmations": 2,
         "minimumPayment": 1,
         "payoutScheme": "PPLNS",
         "payoutSchemeConfig": {
@@ -261,6 +264,9 @@ sed -i '1r /dev/stdin' /home/ubuntu/minigcore/build/coins.json <<'EOF'
     "canonicalName": "Kernelcoin",
     "symbol": "KCN",
     "family": "bitcoin",
+    "explorerBlockLink":"https://explorer.kernelcoin.io/block/{0}",
+    "explorerTxLink": "https://explorer.kernelcoin.org/explorer/?search={0}",
+    "explorerAccountLink": "https://explorer.kernelcoin.org/explorer/?search={0}",
     "website": "",
     "market": "",
     "twitter": "",
@@ -346,8 +352,10 @@ tmux neww -t p -n kernelcoin
 tmux neww -t p -n server
 tmux neww -t p -n proxy
 tmux neww -t p: -n web
+tmux neww -t p: -n wallet
 tmux send-keys -t p:kernelcoin "cd /home/ubuntu/kernelcoin && ./kernelcoind" C-m
 tmux send-keys -t p:server "bash" C-m
+tmux send-keys -t p:wallet "sleep 5 && /home/ubuntu/kernelcoin-cli load_wallet 'main'" C-m
 tmux send-keys -t p:server "cd /home/ubuntu/miningcore && ./build/Miningcore -c kernelcoin.json" C-m
 tmux send-keys -t p:proxy "cd /home/ubuntu/proxy && python3 proxy.py" C-m
 tmux send-keys -t p:web "cd /home/ubuntu/website && ./website" C-m
