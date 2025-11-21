@@ -264,7 +264,7 @@ sed -i '1r /dev/stdin' /home/ubuntu/minigcore/build/coins.json <<'EOF'
     "canonicalName": "Kernelcoin",
     "symbol": "KCN",
     "family": "bitcoin",
-    "explorerBlockLink":"https://explorer.kernelcoin.io/block/{0}",
+    "explorerBlockLink":"https://explorer.kernelcoin.org/block/{0}",
     "explorerTxLink": "https://explorer.kernelcoin.org/explorer/?search={0}",
     "explorerAccountLink": "https://explorer.kernelcoin.org/explorer/?search={0}",
     "website": "",
