@@ -355,7 +355,7 @@ tmux neww -t p: -n web
 tmux neww -t p: -n wallet
 tmux send-keys -t p:kernelcoin "cd /home/ubuntu/kernelcoin && ./kernelcoind" C-m
 tmux send-keys -t p:server "bash" C-m
-tmux send-keys -t p:wallet "sleep 5 && /home/ubuntu/kernelcoin-cli load_wallet 'main'" C-m
+tmux send-keys -t p:wallet "sleep 5 && /home/ubuntu/kernelcoin-cli loadwallet 'main'" C-m
 tmux send-keys -t p:server "cd /home/ubuntu/miningcore && ./build/Miningcore -c kernelcoin.json" C-m
 tmux send-keys -t p:proxy "cd /home/ubuntu/proxy && python3 proxy.py" C-m
 tmux send-keys -t p:web "cd /home/ubuntu/website && ./website" C-m
